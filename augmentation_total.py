@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import CubicSpline
 import os
-from dataset import CATEGORY_LIST, load_data
+from dataset import CATEGORY_LIST
 
 
-# ==================== 1. Time Warping ====================
+# Time Warping
 def time_warp(data: np.ndarray, warp_factor: float = 1.5) -> np.ndarray:
     
     n_timesteps = len(data)
@@ -31,7 +31,7 @@ def time_warp(data: np.ndarray, warp_factor: float = 1.5) -> np.ndarray:
     return warped_data
 
 
-# ==================== 2. Add Jitter ====================
+# Add Jitter 
 def add_jitter(data: np.ndarray, sigma: float = 0.03) -> np.ndarray:
    
     
@@ -42,7 +42,7 @@ def add_jitter(data: np.ndarray, sigma: float = 0.03) -> np.ndarray:
     return jittered_data
 
 
-# ==================== 3. Rotate 3D ====================
+# Rotate 3D 
 def rotate_3d(data: np.ndarray, angle_deg: float, axis: str = 'z') -> np.ndarray:
    
     angle_rad = np.deg2rad(angle_deg)
@@ -75,7 +75,7 @@ def rotate_3d(data: np.ndarray, angle_deg: float, axis: str = 'z') -> np.ndarray
     return rotated_data
 
 
-# ==================== 4. Scale Data ====================
+#  Scale Data 
 def scale_data(data: np.ndarray, scale_factor: float = 1.2) -> np.ndarray:
    
    
@@ -87,7 +87,7 @@ def scale_data(data: np.ndarray, scale_factor: float = 1.2) -> np.ndarray:
     return scaled_data
 
 
-# ==================== 5. Time Shifting ====================
+#  Time Shifting 
 def time_shift(data: np.ndarray, shift_ratio: float = 0.1) -> np.ndarray:
     
     n_timesteps = len(data)
@@ -99,7 +99,7 @@ def time_shift(data: np.ndarray, shift_ratio: float = 0.1) -> np.ndarray:
     return shifted_data
 
 
-# ==================== 통합 증강 함수 ====================
+#  통합 증강 함수 
 def augment_single_data(data: np.ndarray, method: str, **kwargs) -> np.ndarray:
    
     if method == 'time_warp':
@@ -117,7 +117,7 @@ def augment_single_data(data: np.ndarray, method: str, **kwargs) -> np.ndarray:
         raise ValueError(f"Unknown augmentation method: {method}")
 
 
-# ==================== DataFrame 증강 함수 ====================
+#DataFrame 증강 함수
 def augment_dataframe(df: pd.DataFrame,
                      methods: list,
                      augment_per_method: int = 1) -> pd.DataFrame:
@@ -170,7 +170,7 @@ def augment_dataframe(df: pd.DataFrame,
     return final_df
 
 
-# ==================== 파일 저장 함수 ====================
+# 파일 저장 함수
 def save_augmented_data(df: pd.DataFrame, output_folder: str):
     
     if not os.path.exists(output_folder):
@@ -198,69 +198,4 @@ def save_augmented_data(df: pd.DataFrame, output_folder: str):
                     line = f"r,{idx},0,0/0/0/0,0/0/0/0,0/0/0/0,0/0,0/0/0/0,0/0/0,0/0/0,,{x}/{y}/{z},,#\n"
                     f.write(line)
 
-    print(f"✅ Augmented data saved to: {output_folder}")
-
-
-# ==================== 메인 실행 예제 ====================
-if __name__ == "__main__":
-    print("=" * 60)
-    print("Data Augmentation for 3D Time-Series Motion Data")
-    print("=" * 60)
-
-    # 1. 데이터 로드
-    print("\n[1] Loading data1 (clean data)...")
-    df = load_data("data1")
-    print(f"   Original data shape: {df.shape}")
-    print(f"   Unique data IDs: {df['data_id'].nunique()}")
-
-    # 2. 증강 기법 설정
-    augmentation_methods = [
-        {'method': 'time_warp', 'warp_factor': 1.3},
-        {'method': 'jitter', 'sigma': 0.05},
-        {'method': 'rotate', 'angle_deg': 15, 'axis': 'z'},
-        {'method': 'scale', 'scale_factor': 1.2},
-        {'method': 'shift', 'shift_ratio': 0.1}
-    ]
-
-    print("\n[2] Applying augmentation methods:")
-    for i, method in enumerate(augmentation_methods, 1):
-        print(f"   {i}. {method['method']}: {method}")
-
-    # 3. 증강 실행
-    print("\n[3] Augmenting dataset...")
-    augmented_df = augment_dataframe(
-        df=df,
-        methods=augmentation_methods,
-        augment_per_method=1  
-    )
-
-    print(f"   Augmented data shape: {augmented_df.shape}")
-    print(f"   Total data IDs (original + augmented): {augmented_df['data_id'].nunique()}")
-
-    
-    original_count = df.shape[0]
-    augmented_count = augmented_df.shape[0]
-    increase_ratio = (augmented_count - original_count) / original_count * 100
-
-    print(f"\n[4] Augmentation Results:")
-    print(f"   Original: {original_count} rows")
-    print(f"   Augmented: {augmented_count} rows")
-    print(f"   Increase: +{augmented_count - original_count} rows ({increase_ratio:.1f}%)")
-
-   
-    print(f"\n[5] Category-wise statistics:")
-    for category in CATEGORY_LIST:
-        original_ids = df[df['category'] == category]['data_id'].nunique()
-        augmented_ids = augmented_df[augmented_df['category'] == category]['data_id'].nunique()
-        print(f"   {category:15s}: {original_ids} -> {augmented_ids} data files")
-
-    
-    save_choice = input("\n[6] Save augmented data? (y/n): ")
-    if save_choice.lower() == 'y':
-        output_folder = "data1_augmented"
-        save_augmented_data(augmented_df, output_folder)
-        print(f"\n✅ All done! Check '{output_folder}' folder.")
-    else:
-        print("\n⏭️  Skipped saving.")
-
-    print("\n" + "=" * 60)
+    print(f"Augmented data saved to: {output_folder}")
