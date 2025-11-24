@@ -4,14 +4,14 @@ from dataset import load_data, write_data, CATEGORY_LIST
 from augmentation_total import augment_dataframe, save_augmented_data
 import matplotlib.pyplot as plt
 
-# ==================== 페이지 설정 ====================
+# 페이지 설정
 st.set_page_config(page_title="3D Motion Data Visualization & Augmentation", layout="wide")
 
-# ==================== 사이드바: 데이터 로드 & 증강 설정 ====================
-st.sidebar.title("⚙️ Settings")
+#데이터 로드 & 증강 설정
+st.sidebar.title("Settings")
 
 # 데이터 로드
-st.sidebar.header("1️⃣ Load Data")
+st.sidebar.header("Load Data")
 data_source = st.sidebar.selectbox(
     "Select Data Source",
     ["Original (data1 + data2)", "data1 only (clean)", "data2 only (noisy)"]
@@ -21,13 +21,13 @@ if data_source == "Original (data1 + data2)":
     data1 = load_data("data1")
     data2 = load_data("data2")
     total_data = pd.concat([data1, data2])
-    st.sidebar.success(f"✅ Loaded: data1 + data2")
+    st.sidebar.success(f"Loaded: data1 + data2")
 elif data_source == "data1 only (clean)":
     total_data = load_data("data1")
-    st.sidebar.success(f"✅ Loaded: data1 (clean)")
+    st.sidebar.success(f"Loaded: data1 (clean)")
 else:
     total_data = load_data("data2")
-    st.sidebar.success(f"✅ Loaded: data2 (noisy)")
+    st.sidebar.success(f"Loaded: data2 (noisy)")
 
 original_data = total_data.copy()
 
@@ -36,7 +36,7 @@ if 'augmented_data' not in st.session_state:
     st.session_state.augmented_data = None
 
 # 증강 기능
-st.sidebar.header("2️⃣ Data Augmentation")
+st.sidebar.header("Data Augmentation")
 enable_augmentation = st.sidebar.checkbox("Enable Data Augmentation", value=False)
 
 if enable_augmentation:
@@ -76,11 +76,11 @@ if enable_augmentation:
         methods.append({'method': 'shift', 'shift_ratio': shift_ratio})
 
     # 증강 실행 버튼
-    if st.sidebar.button("🚀 Apply Augmentation", type="primary"):
+    if st.sidebar.button("Apply Augmentation", type="primary"):
         if len(methods) > 0:
             with st.spinner("Applying augmentation..."):
                 st.session_state.augmented_data = augment_dataframe(total_data, methods, augment_per_method)
-                st.sidebar.success(f"✅ Augmentation completed!")
+                st.sidebar.success(f"Augmentation completed!")
 
                 # 통계 표시
                 original_count = len(original_data)
@@ -88,18 +88,18 @@ if enable_augmentation:
                 increase = augmented_count - original_count
                 st.sidebar.metric("Total Rows", f"{augmented_count}", f"+{increase}")
         else:
-            st.sidebar.warning("⚠️ Please select at least one augmentation method!")
+            st.sidebar.warning("Please select at least one augmentation method!")
 
     # 리셋 버튼 추가
     if st.session_state.augmented_data is not None:
-        if st.sidebar.button("🔄 Reset Augmentation"):
+        if st.sidebar.button("Reset Augmentation"):
             st.session_state.augmented_data = None
             st.sidebar.info("Augmentation reset. Showing original data.")
             st.rerun()
 
     # 저장 버튼
     if st.session_state.augmented_data is not None:
-        if st.sidebar.button("💾 Save Augmented Data"):
+        if st.sidebar.button("Save Augmented Data"):
             # 데이터 소스에 따라 저장 경로 결정
             if data_source == "data1 only (clean)":
                 output_folder = r"D:\JJS\Univ_classses\3_2\기계학습\team_project\ml-master\augmentation_data1"
@@ -109,18 +109,18 @@ if enable_augmentation:
                 output_folder = r"D:\JJS\Univ_classses\3_2\기계학습\team_project\ml-master\augmentation_data_combined"
 
             save_augmented_data(st.session_state.augmented_data, output_folder)
-            st.sidebar.success(f"✅ Saved to: {output_folder}")
+            st.sidebar.success(f"Saved to: {output_folder}")
 
-# 증강된 데이터가 있으면 사용, 없으면 원본 사용
+
 display_data = st.session_state.augmented_data if st.session_state.augmented_data is not None else total_data
 
-# ==================== 메인 화면 ====================
-st.title("🎯 3D Motion Data Visualization & Augmentation")
+# 메인 화면 
+st.title("3D Motion Data Visualization & Augmentation")
 
 # 탭 생성
-tab1, tab2, tab3 = st.tabs(["📊 Data Overview", "📈 Visualization", "📋 Statistics"])
+tab1, tab2, tab3 = st.tabs(["Data Overview", "Visualization", "Statistics"])
 
-# ==================== 탭 1: Data Overview ====================
+#Data Overview
 with tab1:
     st.header("Data Overview")
 
@@ -134,16 +134,13 @@ with tab1:
 
     st.subheader("Data Description")
     st.write(
-        "- **category**: Data label (circle, diagonal_left, diagonal_right, horizontal, vertical)  \n"
-        "- **data_id**: Unique identifier for each time series (1.txt, 2.txt, etc.)  \n"
-        "- **time_step**: Time axis in a single dataset  \n"
-        "- **x, y, z**: 3D coordinates of the motion"
+        
     )
 
     st.subheader("Full Dataset")
     st.dataframe(display_data, use_container_width=True, height=400)
 
-# ==================== 탭 2: Visualization ====================
+# Visualization
 with tab2:
     st.header("3D Motion Visualization")
 
@@ -166,13 +163,13 @@ with tab2:
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    st.subheader("📊 Augmented Data")
+                    st.subheader("Augmented Data")
                     fig = write_data(display_data, category, data_id)
                     st.pyplot(fig)
                     plt.close()
 
                 with col2:
-                    st.subheader("📊 Original Data")
+                    st.subheader("Original Data")
                     original_id = int(str(data_id)[0])  # 1001 -> 1
                     fig_orig = write_data(original_data, category, original_id)
                     st.pyplot(fig_orig)
@@ -197,7 +194,7 @@ with tab2:
             with col4:
                 st.metric("Z Range", f"{selected_data['z'].min():.1f} ~ {selected_data['z'].max():.1f}")
 
-# ==================== 탭 3: Statistics ====================
+#Statistics
 with tab3:
     st.header("Dataset Statistics")
 
