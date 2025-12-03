@@ -195,7 +195,7 @@ def save_augmented_data(df: pd.DataFrame, output_folder: str):
                 for idx, row in single_data.iterrows():
                     x, y, z = int(row['x']), int(row['y']), int(row['z'])
                    
-                    line = f"r,{idx},0,0/0/0/0,0/0/0/0,0/0/0/0,0/0,0/0/0/0,0/0/0,0/0/0,,{x}/{y}/{z},,#\n"
+                    line = f"r,{idx},0,0/0/0/0,0/0/0/0,0/0/0/0,{x}/{y}/{z},0/0,0/0/0/0,0/0/0,0/0/0,,#\n"
                     f.write(line)
 
     print(f"Augmented data saved to: {output_folder}")
